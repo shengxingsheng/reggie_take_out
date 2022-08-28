@@ -7,11 +7,13 @@ import com.sxs.reggie.service.UserService;
 import com.sxs.reggie.utils.ValidateCodeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author sxs
@@ -23,13 +25,17 @@ import java.util.Map;
 public class UserController {
 
     @Autowired
+    RedisTemplate redisTemplate;
+    @Autowired
     UserService userService;
 
     @PostMapping("/login")
-    public R<String> login(@RequestBody Map map, HttpSession session){
+    public R login(@RequestBody Map map, HttpSession session){
         String phone =(String) map.get("phone");
         String code = (String) map.get("code");
-        String codeInSession = (String) session.getAttribute(phone);
+//        String codeInSession = (String) session.getAttribute(phone);
+        //从redis获取
+        String codeInSession = (String) redisTemplate.opsForValue().get(phone);
         if (codeInSession!=null&&code!=null&&code.equals(codeInSession)){
             LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(User::getPhone, phone);
@@ -40,15 +46,18 @@ public class UserController {
                 userService.save(user);
             }
             session.setAttribute("user", user.getId());
-            return R.success("登录成功");
+            redisTemplate.delete(phone);
+            return R.success(user);
         }
         return R.error("验证码错误");
     }
     @PostMapping("/sendMsg")
     public R<String> sendMsg(@RequestBody User user, HttpSession session){
         String code = ValidateCodeUtils.generateValidateCode(6).toString();
-        session.setAttribute(user.getPhone(),code);
+//        session.setAttribute(user.getPhone(),code); minutes
         log.info("验证码：{}", code);
+        redisTemplate.opsForValue().set(user.getPhone(),code,5, TimeUnit.MINUTES);
+
         return R.success("验证发送成功");
     }
     @PostMapping("/loginout")

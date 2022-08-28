@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @TableName("category")
 public class Category implements Serializable {
     private static final long serialVersionUID = 1L;
-    @TableField("id")
     private Long id;
     //类型 1 菜品分类 2 套餐分类
     private Integer type;
