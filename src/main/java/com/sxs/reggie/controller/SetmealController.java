@@ -7,6 +7,10 @@ import com.sxs.reggie.dto.DishDto;
 import com.sxs.reggie.dto.SetmealDto;
 import com.sxs.reggie.entity.*;
 import com.sxs.reggie.service.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +30,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/setmeal")
 @Slf4j
+@Api(tags = "套餐相关接口")
 public class SetmealController {
 
     @Autowired
@@ -38,6 +43,12 @@ public class SetmealController {
     private DishService dishService;
     @Autowired
     private DishFlavorService dishFlavorService;
+    @ApiOperation("套餐分页")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page",value = "页码",required = true),
+            @ApiImplicitParam(name = "pageSize",value = "页大小",required = true),
+            @ApiImplicitParam(name = "name",value = "页码",required = false),
+    })
     @GetMapping("/page")
     public R<Page> page(Integer page, Integer pageSize, String name){
         Page<Setmeal> setmealPage = new Page<>(page,pageSize);

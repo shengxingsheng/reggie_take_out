@@ -2,6 +2,8 @@ package com.sxs.reggie.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -13,9 +15,11 @@ import java.time.LocalDateTime;
  * @create 2022-08-22 18:34
  */
 @Data
+@ApiModel("套餐")
 public class Setmeal implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    @ApiModelProperty("主键")
     private Long id;
 
     //分类id
